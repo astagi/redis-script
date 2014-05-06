@@ -1,2 +1,2 @@
-local msg = "Hello, world!"
+local msg = "Hello World!"
 return msg

@@ -2,6 +2,7 @@ import redis
 import argparse
 from os.path import expanduser
 import os
+import json
 
 GLOBAL_CONFIG_FILE = os.path.join(expanduser("~"), '.redis-script')
 REDIS_SCRIPT_PREFIX = 'redis:scripts:storage:'
@@ -19,7 +20,7 @@ def __safe_list(lst):
     else:
         return []
 
-def write_config(host, db, port):
+def write_config(host, port, db):
     config = read_config()
     if host:
         config['host'] = host
@@ -28,15 +29,16 @@ def write_config(host, db, port):
     if port:
         config['port'] = port
     try:
-        f.open('w', GLOBAL_CONFIG_FILE).write(json.dump(config))
-    except:
-        pass
+        open(GLOBAL_CONFIG_FILE, 'w').write(json.dumps(config))
+    except IOError:
+        print "Cannot write to %s" % GLOBAL_CONFIG_FILE
+
 
 def read_config():
     try:
-        config = json.loads(f.open('r', GLOBAL_CONFIG_FILE).read())
+        config = json.loads(open(GLOBAL_CONFIG_FILE, 'r').read())
         return config
-    except:
+    except IOError:
         return DEFAULT_CONFIG
 
 def get_key(name):
@@ -124,7 +126,7 @@ def main():
     r = redis.StrictRedis(**(config))
     args = parse_commands()
     if args.command == 'config':
-        write_config(args.host, args.db, args.port)
+        write_config(args.host, args.port, args.db)
     if args.command == 'put':
         if args.put_command == 'file':
             put_script_file(r, args.file, args.name)

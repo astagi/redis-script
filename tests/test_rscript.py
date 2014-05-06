@@ -1,5 +1,9 @@
 import redis
 import rediscript
+import os
+import json
+from os.path import expanduser
+
 from rediscript import write_config
 from rediscript import read_config
 from rediscript import get_key
@@ -11,9 +15,6 @@ from rediscript import exec_script
 from rediscript import exec_script_from_file
 from rediscript import exec_script_from_name
 
-import os
-from os.path import expanduser
-
 class TestRedisScript():
 
     def setUp(self):
@@ -23,12 +24,16 @@ class TestRedisScript():
 
     def tearDown(self):
         flush_scripts(self.r)
+        try:
+            os.remove(rediscript.GLOBAL_CONFIG_FILE)
+        except OSError:
+            pass
 
-    def test_write_config(self):
-        pass
-
-    def test_read_config(self):
-        pass
+    def test_config(self):
+        assert json.dumps(read_config()) == json.dumps(rediscript.DEFAULT_CONFIG)
+        write_config('remotehost', 2000, 1)
+        print rediscript.GLOBAL_CONFIG_FILE
+        assert json.dumps(read_config()) == '{"host": "remotehost", "db": 1, "port": 2000}'
 
     def test_get_key(self):
         label = 'myscript'
@@ -52,10 +57,11 @@ class TestRedisScript():
         assert len(list_scripts(self.r)) == 0
 
     def test_exec_script(self):
-        pass
+        assert 'Hello World!' == exec_script(self.r, 'return "Hello World!"')
 
     def test_exec_script_from_file(self):
-        pass
+        assert 'Hello World!' == exec_script_from_file(self.r, 'tests/lua_scripts/hello_world.lua')
 
     def test_exec_script_from_name(self):
-        pass
+        put_script(self.r, 'return "Hello World!"', 'hello')
+        assert 'Hello World!' == exec_script_from_name(self.r, 'hello')

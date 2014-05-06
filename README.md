@@ -1,4 +1,4 @@
-Redis.script
+redis-script
 ============
 
 A simple command line tool to manage your Redis scripts easily using aliases
@@ -13,3 +13,7 @@ How to use
     $ redis-script exec alias hello
 
     $ redis-script exec alias counter -k ... -a ...
+
+License
+-------
+MIT © Andrea Stagi

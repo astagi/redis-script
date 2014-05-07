@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 
 setup(name="redis-script",
-      py_modules=['redis-script'],
+      py_modules=['rediscript'],
       version="0.1dev",
       description="A simple command line tool to manage your Redis scripts easily using aliases",
       license="MIT",
